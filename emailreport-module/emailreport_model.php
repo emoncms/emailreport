@@ -46,11 +46,13 @@ class EmailReport
             }
             
             if ($option["type"]=="email") {
-                if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
-                
-                $emails = explode(",",$config_in->$key);
-                foreach ($emails as $email) {
-                    if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) return array('valid'=>false, 'message'=>"Error: Email address format error");
+                if ($config_in->$key!="") {
+                    if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                    
+                    $emails = explode(",",$config_in->$key);
+                    foreach ($emails as $email) {
+                        if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) return array('valid'=>false, 'message'=>"Error: Email address format error");
+                    }
                 }
                 $config[$key] = $config_in->$key;
             }
