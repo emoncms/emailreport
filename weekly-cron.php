@@ -56,13 +56,12 @@ while($row = $result->fetch_object()) {
         if ($row->config->enable==1) {  
             $emailreport = emailreport_generate(array(
                 "title"=>$row->config->title,
-                "email"=>$row->config->email,
                 "feedid"=>$row->config->use_kwh,
                 "apikey"=>$u->apikey_read,
                 "timezone"=>$u->timezone,
                 "ukenergy"=>$ukenergy
             ));
-            emailreport_send($redis,$emailreport);
+            emailreport_send($redis,$row->config->email,$emailreport);
         }
     }
 }

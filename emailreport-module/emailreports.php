@@ -12,7 +12,7 @@ $emailreports = array(
         ),
         "email"=>array(
             "description"=>"Email address to send email to:",
-            "type"=>"text"
+            "type"=>"email"
         ),
         "use_kwh"=>array(
             "description"=>"Select cumulative kwh consumptiion feed:", 
@@ -32,7 +32,7 @@ $emailreports = array(
         ),
         "email"=>array(
             "description"=>"Email address to send email to:",
-            "type"=>"text"
+            "type"=>"email"
         ),
         "use_kwh"=>array(
             "description"=>"Select cumulative kwh consumptiion feed:", 

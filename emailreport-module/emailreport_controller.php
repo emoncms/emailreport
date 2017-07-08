@@ -52,7 +52,6 @@ function emailreport_controller()
             if ($report=="home-energy") {
                 $emailreport = emailreport_generate(array(
                     "title"=>$config["title"],
-                    "email"=>$config["email"],
                     "feedid"=>$config["use_kwh"],
                     "apikey"=>$u->apikey_read,
                     "timezone"=>$u->timezone,
@@ -77,13 +76,12 @@ function emailreport_controller()
             if ($report=="home-energy") {
                 $emailreport = emailreport_generate(array(
                     "title"=>$config["title"],
-                    "email"=>$config["email"],
                     "feedid"=>$config["use_kwh"],
                     "apikey"=>$u->apikey_read,
                     "timezone"=>$u->timezone,
                     "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
                 ));
-                emailreport_send($redis,$emailreport);
+                emailreport_send($redis,$config["email"],$emailreport);
                 $result = "email report sent";
             }
         } else {

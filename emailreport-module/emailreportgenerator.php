@@ -6,7 +6,6 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 function emailreport_generate($config) 
 {
     $title = $config["title"];
-    $emailto = $config["email"];
     $apikey = $config["apikey"];
     $timezone = $config["timezone"];
     $usefeedid = $config["feedid"];
@@ -103,16 +102,15 @@ function emailreport_generate($config)
     $subject .= "Energy Update: ".number_format($kwhday,1)."kWh/d";
     
     return array(
-        "emailto"=>$emailto,
         "subject"=>$subject,
         "message"=>$message
     );
 }
 
-function emailreport_send($redis,$emailreport)
+function emailreport_send($redis,$emailto,$emailreport)
 {
     $redis->rpush("emailqueue",json_encode(array(
-        "emailto"=>$emailreport['emailto'],
+        "emailto"=>$emailto,
         "type"=>"weeklyenergyupdate",
         "subject"=>$emailreport['subject'],
         "message"=>$emailreport['message']

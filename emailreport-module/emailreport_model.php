@@ -41,7 +41,17 @@ class EmailReport
             }
             
             if ($option["type"]=="text") {
-                if (preg_replace('/[^\w\s-@.]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                $config[$key] = $config_in->$key;
+            }
+            
+            if ($option["type"]=="email") {
+                if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                
+                $emails = explode(",",$config_in->$key);
+                foreach ($emails as $email) {
+                    if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) return array('valid'=>false, 'message'=>"Error: Email address format error");
+                }
                 $config[$key] = $config_in->$key;
             }
             
@@ -61,14 +71,7 @@ class EmailReport
         
         $result = $this->validate_config($report,$config_in);
         if (!$result["valid"]) return $result["message"]; else $config = $result["config"];
-        
-        /*
-        
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return array('success'=>false, 'message'=>_("Email address format error"));
-        
-        */
-        
-        
+            
         $config = json_encode($config);
         
         $result = $this->mysqli->query("SELECT `userid` FROM emailreport WHERE `userid`='$userid' AND `report`='$report'");

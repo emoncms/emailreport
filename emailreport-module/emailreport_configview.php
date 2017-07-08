@@ -40,7 +40,7 @@ for (var key in config_options) {
     }
         
     // Input type text
-    if (config_options[key].type=="text") {
+    if (config_options[key].type=="text" || config_options[key].type=="email") {
         out += ""+config_options[key].description+"<br>";
         out += "<input type='text' key='"+key+"' style='width:350px'/><br>";
     }
@@ -76,7 +76,7 @@ for (var key in config_options) {
         if (config[key]!=undefined && config[key]==1) $("input[key='"+key+"']")[0].checked = true;
     }
     
-    if (config_options[key].type=="text") {
+    if (config_options[key].type=="text" || config_options[key].type=="email") {
         if (config[key]!=undefined) $("input[key='"+key+"']").val(config[key]);
     }
 
@@ -182,7 +182,7 @@ function fetch_config_from_inputs() {
             config[key] = 0;
             if ($("input[key='"+key+"']")[0].checked) config[key]=1;
         }
-        if (config_options[key].type=="text") config[key] = $("input[key='"+key+"']").val();
+        if (config_options[key].type=="text" || config_options[key].type=="email") config[key] = $("input[key='"+key+"']").val();
         if (config_options[key].type=="feedselect") config[key] = $(".feedselect[key="+key+"]").val();
     }
 }
