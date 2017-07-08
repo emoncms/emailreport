@@ -49,6 +49,8 @@ function emailreport_controller()
         if ($result["valid"]) {
             $config = $result["config"];
         
+            $emailreport = false;
+            
             if ($report=="home-energy") {
                 $emailreport = emailreport_generate(array(
                     "title"=>$config["title"],
@@ -58,36 +60,31 @@ function emailreport_controller()
                     "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
                 ));
             }
-            $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];    
+            
+            if ($report=="solar-pv") {
+                $emailreport = emailreport_generate_solarpv(array(
+                    "title"=>$config["title"],
+                    "use_kwh"=>$config["use_kwh"],
+                    "solar_kwh"=>$config["solar_kwh"],
+                    "apikey"=>$u->apikey_read,
+                    "timezone"=>$u->timezone,
+                    "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
+                ));
+            }
+            
+            if ($emailreport) {
+                if ($route->subaction=="sendtest") {
+                    emailreport_send($redis,$config["email"],$emailreport);
+                    $result = "email report sent";
+                } else {
+                    $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];
+                }
+            }
+            
         } else {
             $result = $result["message"];
         }
     }
     
-    if ($route->action=="sendtest") {
-        $route->format = "text";
-        $u = $user->get($session['userid']);
-        
-        $report = get("report");
-        $result = $ereport->validate_config($report,json_decode(get("config"))); 
-        if ($result["valid"]) {
-            $config = $result["config"];
-        
-            if ($report=="home-energy") {
-                $emailreport = emailreport_generate(array(
-                    "title"=>$config["title"],
-                    "feedid"=>$config["use_kwh"],
-                    "apikey"=>$u->apikey_read,
-                    "timezone"=>$u->timezone,
-                    "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
-                ));
-                emailreport_send($redis,$config["email"],$emailreport);
-                $result = "email report sent";
-            }
-        } else {
-            $result = $result["message"];
-        }
-    }
-
     return array('content'=>$result);
 }

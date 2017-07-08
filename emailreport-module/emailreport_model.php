@@ -50,6 +50,9 @@ class EmailReport
                     if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
                     
                     $emails = explode(",",$config_in->$key);
+                    
+                    if (count($emails)>5) return array("valid"=>false, "message"=>"Error: max number of email addresses limited to 5");
+                    
                     foreach ($emails as $email) {
                         if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) return array('valid'=>false, 'message'=>"Error: Email address format error");
                     }
