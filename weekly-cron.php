@@ -50,16 +50,20 @@ while($row = $result->fetch_object()) {
     
     print " - ".$u->username."\n";
     
-    if ($row->weekly==1) {  
-        $emailreport = emailreport_generate(array(
-            "title"=>$row->title,
-            "email"=>$row->email,
-            "feedid"=>$row->feedid,
-            "apikey"=>$u->apikey_read,
-            "timezone"=>$u->timezone,
-            "ukenergy"=>$ukenergy
-        ));
-        emailreport_send($redis,$emailreport);
+    if ($row->report=="home-energy") {
+    
+        $row->config = json_decode($row->config);
+        if ($row->config->enable==1) {  
+            $emailreport = emailreport_generate(array(
+                "title"=>$row->config->title,
+                "email"=>$row->config->email,
+                "feedid"=>$row->config->use_kwh,
+                "apikey"=>$u->apikey_read,
+                "timezone"=>$u->timezone,
+                "ukenergy"=>$ukenergy
+            ));
+            emailreport_send($redis,$emailreport);
+        }
     }
 }
   

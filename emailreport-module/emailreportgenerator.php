@@ -98,9 +98,13 @@ function emailreport_generate($config)
         "hydroprc"=>$ukenergy->hydroprc
     ));
     
+    $subject = "Emoncms ";
+    if ($title && $title!="") $subject = $title.": ";
+    $subject .= "Energy Update: ".number_format($kwhday,1)."kWh/d";
+    
     return array(
         "emailto"=>$emailto,
-        "subject"=>$title.": Emoncms Energy Update: ".number_format($kwhday,1)."kWh/d",
+        "subject"=>$subject,
         "message"=>$message
     );
 }
