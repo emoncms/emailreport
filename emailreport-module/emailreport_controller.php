@@ -52,7 +52,8 @@ function emailreport_controller()
             "email"=>get("email"),
             "feedid"=>get("feedid"),
             "apikey"=>$u->apikey_read,
-            "timezone"=>$u->timezone
+            "timezone"=>$u->timezone,
+            "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
         ));
         emailreport_send($redis,$emailreport);
         $result = "email report sent";
@@ -68,7 +69,8 @@ function emailreport_controller()
             "email"=>"",
             "feedid"=>get("feedid"),
             "apikey"=>$u->apikey_read,
-            "timezone"=>$u->timezone
+            "timezone"=>$u->timezone,
+            "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
         ));
         $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];
     }

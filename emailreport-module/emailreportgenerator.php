@@ -10,7 +10,8 @@ function emailreport_generate($config)
     $apikey = $config["apikey"];
     $timezone = $config["timezone"];
     $usefeedid = $config["feedid"];
-
+    $ukenergy = $config["ukenergy"];
+    
     if (!$timezone) return false;
 
     $date = new DateTime();
@@ -81,44 +82,6 @@ function emailreport_generate($config)
     $text_averagecmp = "";
     if ($prcless>=0) $text_averagecmp = "You used <b>".round($prcless)."% less</b> than UK household average\n";
 
-
-
-    // --------------------------------------------------------------------------------------------------------
-    // UK Renewable
-    // --------------------------------------------------------------------------------------------------------
-    $end = $start + (3600*24*7*1000);
-    $totaltime = ($end - $start) * 0.001;
-
-    // Wind
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=67088&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
-    $ukwind = average($data);
-    $ukwindGWh = ($ukwind * $totaltime) / 3600000;
-
-    // Demand
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=97736&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
-    $ukdemand = average($data);
-    $ukdemandGWh = ($ukdemand * $totaltime) / 3600000;
-
-    // Hydro
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=97703&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
-    $ukhydro = average($data);
-    $ukhydroGWh = ($ukhydro * $totaltime) / 3600000;
-
-    // Get average wind output in this time
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=114934&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
-    $sum = 0; $n = 0;
-    for ($i=0; $i<count($data); $i++) {
-        if ($data[$i][1]!=null) $sum += $data[$i][1];
-        $n++;
-    }
-    $solar = $sum / $n;
-    $solarGWh = ($solar * $totaltime) / 3600000;
-
-    $ukdemandGWh += $solarGWh;
-    $windprc = 100 * ($ukwindGWh / $ukdemandGWh);
-    $solarprc = 100 * ($solarGWh / $ukdemandGWh);
-    $hydroprc = 100 * ($ukhydroGWh / $ukdemandGWh);
-
     // --------------------------------------------------------------------------------------------------------
 
     $message = view("Modules/emailreport/emailview.php",array(
@@ -127,12 +90,12 @@ function emailreport_generate($config)
         "daily"=>$daily,
         "text_lastweek"=>$text_lastweek,
         "text_averagecmp"=>$text_averagecmp,
-        "solarGWh"=>$solarGWh,
-        "solarprc"=>$solarprc,
-        "ukwindGWh"=>$ukwindGWh,
-        "windprc"=>$windprc,
-        "ukhydroGWh"=>$ukhydroGWh,
-        "hydroprc"=>$hydroprc
+        "solarGWh"=>$ukenergy->solarGWh,
+        "solarprc"=>$ukenergy->solarprc,
+        "ukwindGWh"=>$ukenergy->ukwindGWh,
+        "windprc"=>$ukenergy->windprc,
+        "ukhydroGWh"=>$ukenergy->ukhydroGWh,
+        "hydroprc"=>$ukenergy->hydroprc
     ));
     
     return array(
@@ -150,16 +113,4 @@ function emailreport_send($redis,$emailreport)
         "subject"=>$emailreport['subject'],
         "message"=>$emailreport['message']
     )));
-}
-
-function average($data) {
-    $sum = 0; $n = 0; $val = 0;
-    for ($i=0; $i<count($data); $i++) {
-        if ($data[$i][1]!=null) {
-            $val = $data[$i][1]; 
-        }
-        $sum += $val;
-        $n++;
-    }
-    return $sum / $n;
 }

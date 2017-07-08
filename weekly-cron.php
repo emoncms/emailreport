@@ -2,6 +2,8 @@
 
 define('EMONCMS_EXEC', 1);
 
+require "ukenergy.php";
+
 chdir("/var/www/emoncms");
 
 require "process_settings.php";
@@ -20,6 +22,26 @@ $user = new User($mysqli,$redis,$rememberme);
 
 include "Modules/emailreport/emailreportgenerator.php";
 
+// ----------------------------------------------------
+// Load UK Energy statistics for last week
+// These are loaded to redis and are then accessible in the report preview as well
+// ----------------------------------------------------
+$date = new DateTime();
+$date->setTimezone(new DateTimeZone("Europe/London"));
+// Get start and end time of weeks
+$date->setTimestamp(time());
+$date->modify("this monday");
+if ($date->getTimestamp()>time()) {
+    $date->modify("last monday");
+}
+$date->modify("-1 weeks");
+$startofweek = $date->getTimestamp();
+$start = $startofweek*1000;
+
+$ukenergy = load_ukenergy_stats($start);
+$redis->set("ukenergy-stats",json_encode($ukenergy));
+// ----------------------------------------------------
+
 print "Sending energy update emails\n";
 
 $result = $mysqli->query("SELECT * FROM emailreport");
@@ -34,7 +56,8 @@ while($row = $result->fetch_object()) {
             "email"=>$row->email,
             "feedid"=>$row->feedid,
             "apikey"=>$u->apikey_read,
-            "timezone"=>$u->timezone
+            "timezone"=>$u->timezone,
+            "ukenergy"=>$ukenergy
         ));
         emailreport_send($redis,$emailreport);
     }
