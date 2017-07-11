@@ -121,7 +121,9 @@ function draw_configview()
 
         if (config_options[key].type=="feedselect") {
             var autoname = config_options[key].autoname;
-            $(".feedselect[key="+key+"]").val(feeds[autoname].id);
+            if (feeds[autoname]!=undefined) {
+                $(".feedselect[key="+key+"]").val(feeds[autoname].id);
+            }
             if (config[key]!=undefined) $(".feedselect[key="+key+"]").val(config[key]);
         }
     }

@@ -14,9 +14,10 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 
 function emailreport_controller()
 {
-    global $mysqli,$session, $route, $redis, $user;
+    global $path,$mysqli,$session, $route, $redis, $user;
     
     $result = false;
+    $emoncmsorg = false;
 
     if (!$session['write']) return false;
     
@@ -53,6 +54,7 @@ function emailreport_controller()
             
             if ($report=="home-energy") {
                 $emailreport = emailreport_generate(array(
+                    "host"=>$path,
                     "title"=>$config["title"],
                     "feedid"=>$config["use_kwh"],
                     "apikey"=>$u->apikey_read,
@@ -63,6 +65,7 @@ function emailreport_controller()
             
             if ($report=="solar-pv") {
                 $emailreport = emailreport_generate_solarpv(array(
+                    "host"=>$path,
                     "title"=>$config["title"],
                     "use_kwh"=>$config["use_kwh"],
                     "solar_kwh"=>$config["solar_kwh"],
@@ -74,7 +77,11 @@ function emailreport_controller()
             
             if ($emailreport) {
                 if ($route->subaction=="sendtest") {
-                    emailreport_send($redis,$config["email"],$emailreport);
+                    if ($emoncmsorg) {
+                        emailreport_send($redis,$config["email"],$emailreport);
+                    } else {
+                        emailreport_send_swift($config["email"],$emailreport);
+                    }
                     $result = "email report sent";
                 } else {
                     $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];

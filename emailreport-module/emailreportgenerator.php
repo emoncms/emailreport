@@ -8,6 +8,7 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 // --------------------------------------------------------------------------------------------------------------------------------------------
 function emailreport_generate($config) 
 {
+    $host = $config["host"];
     $title = $config["title"];
     $apikey = $config["apikey"];
     $timezone = $config["timezone"];
@@ -37,7 +38,7 @@ function emailreport_generate($config)
     // Start and end time in seconds
     $start = $startofweek*1000; $end = $endofweek*1000;
     // Fetch the week of data
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=$usefeedid&start=$start&end=$end&mode=daily&apikey=$apikey"));
+    $data = json_decode(file_get_contents("$host/feed/data.json?id=$usefeedid&start=$start&end=$end&mode=daily&apikey=$apikey"));
 
     // print json_encode($data);
 
@@ -62,7 +63,7 @@ function emailreport_generate($config)
 
     // Calculate saving vs previous week
     $startofpreviousweek *= 1000;
-    $tmp = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=$usefeedid&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
+    $tmp = json_decode(file_get_contents("$host/feed/data.json?id=$usefeedid&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
     $kwhpreviousweek = $data[0][1] - $tmp[0][1];
 
     if ($kwhpreviousweek>0) {
@@ -115,6 +116,7 @@ function emailreport_generate($config)
 // --------------------------------------------------------------------------------------------------------------------------------------------
 function emailreport_generate_solarpv($config) 
 {
+    $host = $config["host"];
     $title = $config["title"];
     $apikey = $config["apikey"];
     $timezone = $config["timezone"];
@@ -145,8 +147,8 @@ function emailreport_generate_solarpv($config)
     // Start and end time in seconds
     $start = $startofweek*1000; $end = $endofweek*1000;
     // Fetch the week of data
-    $use_data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=$use_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
-    $solar_data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=$solar_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
+    $use_data = json_decode(file_get_contents("$host/feed/data.json?id=$use_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
+    $solar_data = json_decode(file_get_contents("$host/feed/data.json?id=$solar_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
 
     if (count($use_data)!=8) {
         echo "Not enough days returned in data request\n"; die;
@@ -181,7 +183,7 @@ function emailreport_generate_solarpv($config)
     
     // Calculate saving vs previous week
     $startofpreviousweek *= 1000;
-    $tmp = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=$use_kwh&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
+    $tmp = json_decode(file_get_contents("$host/feed/data.json?id=$use_kwh&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
     $kwhpreviousweek = $use_data[0][1] - $tmp[0][1];
 
     if ($kwhpreviousweek>0) {
@@ -239,4 +241,21 @@ function emailreport_send($redis,$emailto,$emailreport)
         "subject"=>$emailreport['subject'],
         "message"=>$emailreport['message']
     )));
+}
+
+function emailreport_send_swift($emailsto,$emailreport)
+{
+    require "Lib/email.php";
+    $email = new Email();
+    //$email->from(from);
+    $emailsto = explode(",",$emailsto);
+    $email->to($emailsto);
+    $email->subject($emailreport['subject']);
+    $email->body($emailreport['message']);
+    $result = $email->send();
+    if (!$result['success']) {
+        //$this->log->error("Email send returned error. emailto=" + $emailto . " message='" . $result['message'] . "'");
+    } else {
+        //$this->log->info("Email sent to $emailto");
+    }
 }

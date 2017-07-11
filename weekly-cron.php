@@ -1,5 +1,8 @@
 <?php
 
+$emoncmsorg = false;
+$path = "http://localhost/emoncms";
+
 define('EMONCMS_EXEC', 1);
 
 require "ukenergy.php";
@@ -7,18 +10,33 @@ require "ukenergy.php";
 chdir("/var/www/emoncms");
 
 require "process_settings.php";
-require "Modules/log/EmonLogger.php";
+require "Lib/EmonLogger.php";
 $mysqli = @new mysqli($server,$username,$password,$database);
 
+if (!$redis_enabled) { echo "ERROR: Redis required for this module\n"; die; }
+
 $redis = new Redis();
-$redis->connect("127.0.0.1");
+$connected = $redis->connect($redis_server['host'], $redis_server['port']);
 
-// 3) User sessions
-require "Modules/user/rememberme_model.php";
-$rememberme = new Rememberme($mysqli);
+if (!$connected) { echo "Can't connect to redis at ".$redis_server['host'].":".$redis_server['port']." , it may be that redis-server is not installed or started see readme for redis installation"; die; }
 
-require("Modules/user/user_model.php");
-$user = new User($mysqli,$redis,$rememberme);
+if (!empty($redis_server['prefix'])) $redis->setOption(Redis::OPT_PREFIX, $redis_server['prefix']);
+if (!empty($redis_server['auth'])) {
+    if (!$redis->auth($redis_server['auth'])) {
+        echo "Can't connect to redis at ".$redis_server['host'].", autentication failed"; die;
+    }
+}
+
+if ($emoncmsorg) {
+    // 3) User sessions
+    require_once "Modules/user/rememberme_model.php";
+    $rememberme = new Rememberme($mysqli);
+    require("Modules/user/user_model.php");
+    $user = new User($mysqli,$redis,$rememberme);
+} else {
+    require("Modules/user/user_model.php");
+    $user = new User($mysqli,$redis);
+}
 
 include "Modules/emailreport/emailreportgenerator.php";
 
@@ -51,17 +69,42 @@ while($row = $result->fetch_object()) {
     print " - ".$u->username."\n";
     
     if ($row->report=="home-energy") {
-    
         $row->config = json_decode($row->config);
         if ($row->config->enable==1) {  
             $emailreport = emailreport_generate(array(
+                "host"=>$path,
                 "title"=>$row->config->title,
                 "feedid"=>$row->config->use_kwh,
                 "apikey"=>$u->apikey_read,
                 "timezone"=>$u->timezone,
                 "ukenergy"=>$ukenergy
             ));
-            emailreport_send($redis,$row->config->email,$emailreport);
+            
+            if ($emoncmsorg) {
+                emailreport_send($redis,$row->config->email,$emailreport);
+            } else {
+                emailreport_send_swift($row->config->email,$emailreport);
+            }
+        }
+    }
+    
+    if ($row->report=="solar-pv") {
+        $row->config = json_decode($row->config);
+        if ($row->config->enable==1) {  
+            $emailreport = emailreport_generate(array(
+                "host"=>$path,
+                "title"=>$row->config->title,
+                "use_kwh"=>$row->config->use_kwh,
+                "solar_kwh"=>$row->config->solar_kwh,
+                "apikey"=>$u->apikey_read,
+                "timezone"=>$u->timezone,
+                "ukenergy"=>$ukenergy
+            ));
+            if ($emoncmsorg) {
+                emailreport_send($redis,$row->config->email,$emailreport);
+            } else {
+                emailreport_send_swift($row->config->email,$emailreport);
+            }
         }
     }
 }
