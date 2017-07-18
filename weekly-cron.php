@@ -15,15 +15,19 @@ $mysqli = @new mysqli($server,$username,$password,$database);
 
 if (!$redis_enabled) { echo "ERROR: Redis required for this module\n"; die; }
 
+
 $redis = new Redis();
-$connected = $redis->connect($redis_server['host'], $redis_server['port']);
 
-if (!$connected) { echo "Can't connect to redis at ".$redis_server['host'].":".$redis_server['port']." , it may be that redis-server is not installed or started see readme for redis installation"; die; }
-
-if (!empty($redis_server['prefix'])) $redis->setOption(Redis::OPT_PREFIX, $redis_server['prefix']);
-if (!empty($redis_server['auth'])) {
-    if (!$redis->auth($redis_server['auth'])) {
-        echo "Can't connect to redis at ".$redis_server['host'].", autentication failed"; die;
+if ($emoncmsorg) {
+    $redis->connect($redis_server);
+} else {
+    $connected = $redis->connect($redis_server['host'], $redis_server['port']);
+    if (!$connected) { echo "Can't connect to redis at ".$redis_server['host'].":".$redis_server['port']." , it may be that redis-server is not installed or started see readme for redis installation"; die; }
+    if (!empty($redis_server['prefix'])) $redis->setOption(Redis::OPT_PREFIX, $redis_server['prefix']);
+    if (!empty($redis_server['auth'])) {
+        if (!$redis->auth($redis_server['auth'])) {
+            echo "Can't connect to redis at ".$redis_server['host'].", autentication failed"; die;
+        }
     }
 }
 
@@ -79,11 +83,13 @@ while($row = $result->fetch_object()) {
                 "timezone"=>$u->timezone,
                 "ukenergy"=>$ukenergy
             ));
-            
-            if ($emoncmsorg) {
-                emailreport_send($redis,$row->config->email,$emailreport);
-            } else {
-                emailreport_send_swift($row->config->email,$emailreport);
+
+            if ($emailreport) {
+                if ($emoncmsorg) {
+                    emailreport_send($redis,$row->config->email,$emailreport);
+                } else {
+                    emailreport_send_swift($row->config->email,$emailreport);
+                }
             }
         }
     }
@@ -91,7 +97,7 @@ while($row = $result->fetch_object()) {
     if ($row->report=="solar-pv") {
         $row->config = json_decode($row->config);
         if ($row->config->enable==1) {  
-            $emailreport = emailreport_generate(array(
+            $emailreport = emailreport_generate_solarpv(array(
                 "host"=>$path,
                 "title"=>$row->config->title,
                 "use_kwh"=>$row->config->use_kwh,
@@ -100,10 +106,12 @@ while($row = $result->fetch_object()) {
                 "timezone"=>$u->timezone,
                 "ukenergy"=>$ukenergy
             ));
-            if ($emoncmsorg) {
-                emailreport_send($redis,$row->config->email,$emailreport);
-            } else {
-                emailreport_send_swift($row->config->email,$emailreport);
+            if ($emailreport) {
+                if ($emoncmsorg) {
+                    emailreport_send($redis,$row->config->email,$emailreport);
+                } else {
+                    emailreport_send_swift($row->config->email,$emailreport);
+                }
             }
         }
     }

@@ -18,7 +18,12 @@ function emailreport_generate($config)
     if (!$timezone) return false;
 
     $date = new DateTime();
-    $date->setTimezone(new DateTimeZone($timezone));
+    
+    try {
+        $date->setTimezone(new DateTimeZone($timezone));
+    } catch (Exception $e) {
+        $date->setTimezone(new DateTimeZone("UTC"));
+    }
 
     // Get start and end time of weeks
     $date->setTimestamp(time());
@@ -43,7 +48,7 @@ function emailreport_generate($config)
     // print json_encode($data);
 
     if (count($data)!=8) {
-        echo "Not enough days returned in data request\n"; die;
+        echo "Not enough days returned in data request\n"; return false;
     }
 
     // Calculate daily consumption for the week
@@ -64,22 +69,24 @@ function emailreport_generate($config)
     // Calculate saving vs previous week
     $startofpreviousweek *= 1000;
     $tmp = json_decode(file_get_contents("$host/feed/data.json?id=$usefeedid&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
-    $kwhpreviousweek = $data[0][1] - $tmp[0][1];
-
-    if ($kwhpreviousweek>0) {
-        $prcless = 100 * (1 - ($total / $kwhpreviousweek));
-    } else {
-        $prcless = 0;
-    }
-
+    
     $text_lastweek = "";
-    if ($prcless>=0) {
-        $text_lastweek = "You used <b>".round($prcless)."% less</b> than the previous week\n";
-    } else {
-        $prcless = 100 * (1 - ($kwhpreviousweek/$total));
-        $text_lastweek = "You used <b>".round($prcless)."% more</b> than the previous week\n";
-    }
+    if (count($tmp)>0) {
+        $kwhpreviousweek = $data[0][1] - $tmp[0][1];
 
+        if ($kwhpreviousweek>0) {
+            $prcless = 100 * (1 - ($total / $kwhpreviousweek));
+        } else {
+            $prcless = 0;
+        }
+
+        if ($prcless>=0) {
+            $text_lastweek = "You used <b>".round($prcless)."% less</b> than the previous week\n";
+        } else {
+            $prcless = 100 * (1 - ($kwhpreviousweek/$total));
+            $text_lastweek = "You used <b>".round($prcless)."% more</b> than the previous week\n";
+        }
+    }
     // Calculate saving vs average household
     $prcless = 100 * (1 - ($kwhday / 9.0));
     $text_averagecmp = "";
@@ -127,7 +134,12 @@ function emailreport_generate_solarpv($config)
     if (!$timezone) return false;
 
     $date = new DateTime();
-    $date->setTimezone(new DateTimeZone($timezone));
+
+    try {
+        $date->setTimezone(new DateTimeZone($timezone));
+    } catch (Exception $e) {
+        $date->setTimezone(new DateTimeZone("UTC"));
+    }
 
     // Get start and end time of weeks
     $date->setTimestamp(time());
@@ -151,15 +163,15 @@ function emailreport_generate_solarpv($config)
     $solar_data = json_decode(file_get_contents("$host/feed/data.json?id=$solar_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
 
     if (count($use_data)!=8) {
-        echo "Not enough days returned in data request\n"; die;
+        echo "Not enough days returned in data request\n"; return false;
     }
     
     if (count($solar_data)!=8) {
-        echo "Not enough days returned in data request\n"; die;
+        echo "Not enough days returned in data request\n"; return false;
     }
     
     if (count($solar_data)!=count($use_data)) {
-        echo "Mismatch between solar and use feeds\n"; die;
+        echo "Mismatch between solar and use feeds\n"; return false;
     }
 
     // Calculate daily consumption for the week
@@ -184,20 +196,23 @@ function emailreport_generate_solarpv($config)
     // Calculate saving vs previous week
     $startofpreviousweek *= 1000;
     $tmp = json_decode(file_get_contents("$host/feed/data.json?id=$use_kwh&start=$startofpreviousweek&end=".($startofpreviousweek+1000)."&interval=1&apikey=$apikey"));
-    $kwhpreviousweek = $use_data[0][1] - $tmp[0][1];
-
-    if ($kwhpreviousweek>0) {
-        $prcless = 100 * (1 - ($use_total / $kwhpreviousweek));
-    } else {
-        $prcless = 0;
-    }
 
     $text_lastweek = "";
-    if ($prcless>=0) {
-        $text_lastweek = "You used <b>".round($prcless)."% less</b> than the previous week\n";
-    } else {
-        $prcless = 100 * (1 - ($kwhpreviousweek/$use_total));
-        $text_lastweek = "You used <b>".round($prcless)."% more</b> than the previous week\n";
+    if (count($tmp)>0) {
+        $kwhpreviousweek = $use_data[0][1] - $tmp[0][1];
+
+        if ($kwhpreviousweek>0) {
+            $prcless = 100 * (1 - ($use_total / $kwhpreviousweek));
+        } else {
+            $prcless = 0;
+        }
+
+        if ($prcless>=0) {
+            $text_lastweek = "You used <b>".round($prcless)."% less</b> than the previous week\n";
+        } else {
+            $prcless = 100 * (1 - ($kwhpreviousweek/$use_total));
+            $text_lastweek = "You used <b>".round($prcless)."% more</b> than the previous week\n";
+        }
     }
 
     // Calculate saving vs average household
