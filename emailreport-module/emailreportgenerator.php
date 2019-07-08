@@ -163,11 +163,11 @@ function emailreport_generate_solarpv($config)
     $solar_data = json_decode(file_get_contents("$host/feed/data.json?id=$solar_kwh&start=$start&end=$end&mode=daily&apikey=$apikey"));
 
     if (count($use_data)!=8) {
-        echo "Not enough days returned in data request\n"; return false;
+        echo "Not enough days returned in use data request\n"; return false;
     }
     
     if (count($solar_data)!=8) {
-        echo "Not enough days returned in data request\n"; return false;
+        echo "Not enough days returned in solar data request\n"; return false;
     }
     
     if (count($solar_data)!=count($use_data)) {
