@@ -17,7 +17,7 @@ function emailreport_controller()
     global $path,$mysqli,$session, $route, $redis, $user;
     
     $result = false;
-    $emoncmsorg = false;
+    $emoncmsorg = true;
 
     if (!$session['write']) return false;
     

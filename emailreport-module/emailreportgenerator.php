@@ -47,8 +47,8 @@ function emailreport_generate($config)
 
     // print json_encode($data);
 
-    if (count($data)!=8) {
-        echo "Not enough days returned in data request\n"; return false;
+    if (count($data)<8) {
+        echo "Not enough days returned in data request \n"; return false;
     }
 
     // Calculate daily consumption for the week
@@ -56,7 +56,8 @@ function emailreport_generate($config)
     $daily = array();
     $days = array("Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday","Sun"=>"Sunday");
     for ($i=1; $i<count($data); $i++) {
-        $date->setTimestamp($data[$i-1][0]*0.001);
+        $timestamp = round($data[$i-1][0]*0.001/3600.0)*3600.0;
+        $date->setTimestamp($timestamp);
         $day = $data[$i][1] - $data[$i-1][1];
         $daily[] = array("day"=>$days[$date->format('D')], "kwh"=>$day);
         $total += $day;
