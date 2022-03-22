@@ -41,13 +41,13 @@ class EmailReport
             }
             
             if ($option["type"]=="text") {
-                if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                if (preg_replace('/[^\w\s\-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
                 $config[$key] = $config_in->$key;
             }
             
             if ($option["type"]=="email") {
                 if ($config_in->$key!="") {
-                    if (preg_replace('/[^\w\s-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
+                    if (preg_replace('/[^\w\s\-@.,]/','',$config_in->$key)!=$config_in->$key) return array("valid"=>false, "message"=>"Error: $key format error");
                     
                     $emails = explode(",",$config_in->$key);
                     
