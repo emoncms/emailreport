@@ -33,10 +33,10 @@ if ($emoncmsorg) {
 
 if ($emoncmsorg) {
     // 3) User sessions
-    require_once "Modules/user/rememberme_model.php";
-    $rememberme = new Rememberme($mysqli);
+    //require_once "Modules/user/rememberme_model.php";
+    //$rememberme = new Rememberme($mysqli);
     require("Modules/user/user_model.php");
-    $user = new User($mysqli,$redis,$rememberme);
+    $user = new User($mysqli,$redis);
 } else {
     require("Modules/user/user_model.php");
     $user = new User($mysqli,$redis);

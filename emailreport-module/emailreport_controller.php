@@ -75,7 +75,7 @@ function emailreport_controller()
                 ));
             }
             
-            if ($emailreport) {
+            if ($emailreport!=false) {
                 if ($route->subaction=="sendtest") {
                     if ($emoncmsorg) {
                         emailreport_send($redis,$config["email"],$emailreport);
@@ -86,6 +86,8 @@ function emailreport_controller()
                 } else {
                     $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];
                 }
+            } else {
+                $result = "";
             }
             
         } else {
