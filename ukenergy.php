@@ -9,12 +9,12 @@ function load_ukenergy_stats($start)
     $totaltime = ($end - $start) * 0.001;
 
     // Demand
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=97736&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
+    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=476659&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
     $ukdemand = average($data);
     $ukdemandGWh = ($ukdemand * $totaltime) / 3600000;
     
     // Wind
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=67088&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
+    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=97699&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
     $ukwind = average($data);
     $ukwindGWh = ($ukwind * $totaltime) / 3600000;
 
@@ -24,7 +24,7 @@ function load_ukenergy_stats($start)
     $ukhydroGWh = ($ukhydro * $totaltime) / 3600000;
 
     // Get average solar output in this time
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=114934&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
+    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=477291&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
     $sum = 0; $n = 0;
     for ($i=0; $i<count($data); $i++) {
         if ($data[$i][1]!=null) $sum += $data[$i][1];

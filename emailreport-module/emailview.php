@@ -1,17 +1,34 @@
+<?php
+if ($total!==null) {
+    $total = number_format($total,1);
+} else {
+    $total = "---";
+}
+
+if ($kwhday!==null) {
+    $kwhday = number_format($kwhday,1);
+} else {
+    $kwhday = "---";
+}
+
+?>
+
 <div id="emailouter" style="background-color:#eee; padding:20px; font-size:18px">
 <div style="background-color:#fff; padding:20px;">
 <table style="width:100%">
 <tr>
   <td style="width:50%; vertical-align:top; padding:10px">
     <h3>Your energy in the last week</h3>
-    <div style="font-size:28px; line-height:35px;">Total: <?php echo number_format($total,1); ?> kWh</div>
-    <div style="font-size:28px; line-height:35px;"><?php echo number_format($kwhday,1); ?> kWh per day</div>
+    <div style="font-size:28px; line-height:35px;">Total: <?php echo $total; ?> kWh</div>
+    <div style="font-size:28px; line-height:35px;"><?php echo $kwhday; ?> kWh per day</div>
     
     <p><b>Daily breakdown:</b></p>
     <table style="width:100%; border-collapse: collapse">
     <?php 
     foreach ($daily as $day) { 
-        echo "<tr><td style='border: 1px solid #ddd; font-size:18px; padding:8px'>".$day['day']."</td><td style='border: 1px solid #ddd; font-size:18px; padding:8px'>".number_format($day['kwh'],1)." kWh</td></tr>";
+        if (isset($day['kwh']) && $day['kwh']!==null) {
+            echo "<tr><td style='border: 1px solid #ddd; font-size:18px; padding:8px'>".$day['day']."</td><td style='border: 1px solid #ddd; font-size:18px; padding:8px'>".number_format($day['kwh'],1)." kWh</td></tr>";
+        }
     } 
     ?>
     </table>

@@ -68,7 +68,9 @@ function emailreport_generate($config)
 
     // Calculate average kWh per day
     $totaltime = ($data[6][0] - $data[0][0])*0.001;
-    $kwhday = (($total * 3600000) / $totaltime) * 0.024;
+    $days = count($daily);
+    //$kwhday = (($total * 3600000) / $totaltime) * 0.024;
+    $kwhday = $total / $days;
 
     // Calculate saving vs previous week
     $startofpreviousweek_value = json_decode(file_get_contents("$host/feed/value.json?id=$usefeedid&time=$startofpreviousweek&apikey=$apikey"));
@@ -195,11 +197,16 @@ function emailreport_generate_solarpv($config)
         $use_total += $use_data[$i][1];
         $solar_total += $solar_data[$i][1];
     }
+    
+    $days = count($daily);
 
     // Calculate average kWh per day
     $totaltime = ($use_data[6][0] - $use_data[0][0])*0.001;
-    $usekwhday = (($use_total * 3600000) / $totaltime) * 0.024;
-    $solarkwhday = (($solar_total * 3600000) / $totaltime) * 0.024;
+    //$usekwhday = (($use_total * 3600000) / $totaltime) * 0.024;
+    //$solarkwhday = (($solar_total * 3600000) / $totaltime) * 0.024;
+    
+    $usekwhday = $use_total / $days;
+    $solarkwhday = $solar_total / $days;
     
     // Calculate saving vs previous week
     $startofpreviousweek_value = json_decode(file_get_contents("$host/feed/value.json?id=$use_kwh&time=$startofpreviousweek&apikey=$apikey"));
