@@ -13,13 +13,17 @@ if ($kwhday !== null) {
 } else {
     $kwhday = "---";
 }
+
+$show_ukenergy = !empty($show_ukenergy);
+
+$main_col_width = $show_ukenergy ? "50%" : "100%";
 ?>
 
 <div id="emailouter" style="background-color:#eee; padding:20px; font-size:18px">
 <div style="background-color:#fff; padding:20px;">
 <table style="width:100%">
 <tr>
-  <td style="width:50%; vertical-align:top; padding:10px">
+  <td style="width:<?php echo $main_col_width; ?>; vertical-align:top; padding:10px">
     <h3>Your energy in the last week</h3>
     <div style="font-size:28px; line-height:35px;">Total: <?php echo $total; ?> kWh</div>
     <div style="font-size:28px; line-height:35px;"><?php echo $kwhday; ?> kWh per day</div>
@@ -40,6 +44,7 @@ if ($kwhday !== null) {
 
   </td>
 
+  <?php if ($show_ukenergy) { ?>
   <td style="width:50%; vertical-align:top;padding:10px">
     <h3>Renewable Energy in the UK last week</h3>
 
@@ -52,6 +57,7 @@ if ($kwhday !== null) {
     <h3>UK Hydro</h3>
     <p>Last week metered hydro generated <?php echo round($ukhydroGWh); ?> GWh of energy across the UK covering <?php echo round($hydroprc); ?>% of total demand.</p>
   </td>
+  <?php } ?>
 </tr>
 </table>
 </div>

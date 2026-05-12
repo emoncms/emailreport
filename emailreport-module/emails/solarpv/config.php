@@ -26,6 +26,10 @@ return array(
             "description" => "Select cumulative kwh solar feed:",
             "type" => "feedselect",
             "autoname" => "solar_kwh"
+        ),
+        "show_ukenergy" => array(
+            "description" => "Show UK energy statistics",
+            "type" => "checkbox"
         )
     )
 );

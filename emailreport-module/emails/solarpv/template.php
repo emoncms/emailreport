@@ -1,13 +1,17 @@
 <?php
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
+
+$show_ukenergy = !empty($show_ukenergy);
+
+$main_col_width = $show_ukenergy ? "50%" : "100%";
 ?>
 
 <div id="emailouter" style="background-color:#eee; padding:20px; font-size:18px">
 <div style="background-color:#fff; padding:20px;">
 <table style="width:100%">
 <tr>
-  <td style="width:50%; vertical-align:top; padding:10px">
+  <td style="width:<?php echo $main_col_width; ?>; vertical-align:top; padding:10px">
     <h3>Your energy in the last week</h3>
     <div style="font-size:28px; line-height:35px;">Total Use: <?php echo number_format($use_total ?? 0, 1); ?> kWh</div>
     <div style="font-size:28px; line-height:40px;"><?php echo number_format($usekwhday ?? 0, 1); ?> kWh per day</div>
@@ -37,6 +41,7 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 
   </td>
 
+  <?php if ($show_ukenergy) { ?>
   <td style="width:50%; vertical-align:top;padding:10px">
     <h3>Renewable Energy in the UK last week</h3>
 
@@ -49,6 +54,7 @@ defined('EMONCMS_EXEC') or die('Restricted access');
     <h3>UK Hydro</h3>
     <p>Last week metered hydro generated <?php echo round($ukhydroGWh ?? 0); ?> GWh of energy across the UK covering <?php echo round($hydroprc ?? 0); ?>% of total demand.</p>
   </td>
+  <?php } ?>
 </tr>
 </table>
 </div>

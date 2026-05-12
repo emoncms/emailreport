@@ -12,7 +12,8 @@ function emailreport_generate_home($config)
     $apikey = $config["apikey"];
     $timezone = $config["timezone"];
     $usefeedid = (int) $config["use_kwh"];
-    $ukenergy = $config["ukenergy"];
+    $ukenergy = $config["ukenergy"] ?? null;
+    $show_ukenergy = !empty($config["show_ukenergy"]);
 
     if (!$timezone || !$usefeedid) {
         return false;
@@ -72,6 +73,7 @@ function emailreport_generate_home($config)
         "daily" => $daily,
         "text_lastweek" => $text_lastweek,
         "text_averagecmp" => $text_averagecmp,
+        "show_ukenergy" => $show_ukenergy,
         "solarGWh" => $metrics["solarGWh"],
         "solarprc" => $metrics["solarprc"],
         "ukwindGWh" => $metrics["ukwindGWh"],

@@ -12,7 +12,8 @@ function emailreport_generate_solarpv($config)
     $timezone = $config["timezone"];
     $use_kwh = (int) $config["use_kwh"];
     $solar_kwh = (int) $config["solar_kwh"];
-    $ukenergy = $config["ukenergy"];
+    $ukenergy = $config["ukenergy"] ?? null;
+    $show_ukenergy = !empty($config["show_ukenergy"]);
 
     if (!$timezone || !$use_kwh || !$solar_kwh) {
         return false;
@@ -83,6 +84,7 @@ function emailreport_generate_solarpv($config)
         "daily" => $daily,
         "text_lastweek" => $text_lastweek,
         "text_averagecmp" => $text_averagecmp,
+        "show_ukenergy" => $show_ukenergy,
         "solarGWh" => $metrics["solarGWh"],
         "solarprc" => $metrics["solarprc"],
         "ukwindGWh" => $metrics["ukwindGWh"],

@@ -21,6 +21,10 @@ return array(
             "description" => "Select cumulative kwh consumptiion feed:",
             "type" => "feedselect",
             "autoname" => "use_kwh"
+        ),
+        "show_ukenergy" => array(
+            "description" => "Show UK energy statistics",
+            "type" => "checkbox"
         )
     )
 );
