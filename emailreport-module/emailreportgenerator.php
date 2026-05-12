@@ -170,7 +170,7 @@ function emailreport_generate_solarpv($config)
     $solar_data = json_decode(file_get_contents("$host/feed/data.json?id=$solar_kwh&start=$start&end=$end&mode=daily&delta=1&apikey=$apikey"));
 
     if (!is_array($use_data)) {
-        echo "consumption data is not an array? ".json_encode($data)."\n";
+        echo "consumption data is not an array? ".json_encode($use_data)."\n";
         return false;
     }
 
