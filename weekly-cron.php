@@ -37,9 +37,18 @@ print "Sending energy update emails\n";
 $ereport = new EmailReport($mysqli,EmailReportRegistry::get_config_options());
 
 $result = $mysqli->query("SELECT * FROM emailreport");
+if (!$result) {
+    print "Error querying emailreport table\n";
+    exit(1);
+}
 while($row = $result->fetch_object()) {
     $u = $user->get($row->userid);
-    
+
+    if (!$u) {
+        print " - userid " . $row->userid . " not found, skipping\n";
+        continue;
+    }
+
     print " - ".$u->username."\n";
     
     $config = json_decode($row->config);

@@ -106,7 +106,9 @@ function emailreport_controller()
     
     if ($route->action=="save") {
         $route->format = "json";
-        return $ereport->set($session['userid'],get("report"),json_decode(get("config")));
+        $report = isset($_POST['report']) ? $_POST['report'] : '';
+        $config_raw = isset($_POST['config']) ? $_POST['config'] : '';
+        return $ereport->set($session['userid'], $report, json_decode($config_raw));
     }
     
     if ($route->action=="config") {
@@ -117,9 +119,10 @@ function emailreport_controller()
     if ($route->action=="preview") {
         $route->format = "text";
         $u = $user->get($session['userid']);
-        
-        $report = get("report");
-        $result = $ereport->validate_config($report,json_decode(get("config"))); 
+
+        $report = isset($_POST['report']) ? $_POST['report'] : '';
+        $config_raw = isset($_POST['config']) ? $_POST['config'] : '';
+        $result = $ereport->validate_config($report, json_decode($config_raw)); 
         if ($result["valid"]) {
             $config = $result["config"];
 

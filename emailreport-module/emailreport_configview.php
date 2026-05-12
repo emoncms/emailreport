@@ -118,6 +118,12 @@ new Vue({
                 return response.text();
             });
         },
+        postText: function (url, params) {
+            var body = new URLSearchParams(params);
+            return fetch(url, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() }).then(function (response) {
+                return response.text();
+            });
+        },
         loadConfigView: function () {
             var self = this;
             this.message = "";
@@ -190,8 +196,8 @@ new Vue({
         },
         save: function () {
             var self = this;
-            var url = path + "emailreport/save?report=" + encodeURIComponent(this.report) + "&config=" + encodeURIComponent(JSON.stringify(this.config));
-            this.fetchText(url).then(function (raw) {
+            var url = path + "emailreport/save";
+            this.postText(url, { report: this.report, config: JSON.stringify(this.config) }).then(function (raw) {
                 var parsed = null;
                 try {
                     parsed = JSON.parse(raw);
@@ -208,8 +214,8 @@ new Vue({
         },
         preview: function () {
             var self = this;
-            var url = path + "emailreport/preview?report=" + encodeURIComponent(this.report) + "&config=" + encodeURIComponent(JSON.stringify(this.config));
-            this.fetchText(url).then(function (result) {
+            var url = path + "emailreport/preview";
+            this.postText(url, { report: this.report, config: JSON.stringify(this.config) }).then(function (result) {
                 self.previewHtml = result;
                 self.$nextTick(function () {
                     var emailouter = document.getElementById("emailouter");
@@ -219,8 +225,8 @@ new Vue({
         },
         sendtest: function () {
             var self = this;
-            var url = path + "emailreport/preview/sendtest?report=" + encodeURIComponent(this.report) + "&config=" + encodeURIComponent(JSON.stringify(this.config));
-            this.fetchText(url).then(function (result) {
+            var url = path + "emailreport/preview/sendtest";
+            this.postText(url, { report: this.report, config: JSON.stringify(this.config) }).then(function (result) {
                 self.message = result;
             });
         },
