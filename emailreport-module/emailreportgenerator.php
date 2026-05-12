@@ -14,6 +14,21 @@ function emailreport_generate($config)
     $timezone = $config["timezone"];
     $usefeedid = (int) $config["feedid"];
     $ukenergy = $config["ukenergy"];
+
+    $solarGWh = 0;
+    $solarprc = 0;
+    $ukwindGWh = 0;
+    $windprc = 0;
+    $ukhydroGWh = 0;
+    $hydroprc = 0;
+    if (is_object($ukenergy)) {
+        $solarGWh = $ukenergy->solarGWh ?? 0;
+        $solarprc = $ukenergy->solarprc ?? 0;
+        $ukwindGWh = $ukenergy->ukwindGWh ?? 0;
+        $windprc = $ukenergy->windprc ?? 0;
+        $ukhydroGWh = $ukenergy->ukhydroGWh ?? 0;
+        $hydroprc = $ukenergy->hydroprc ?? 0;
+    }
     
     if (!$timezone) return false;
     if (!$usefeedid) return false;
@@ -104,12 +119,12 @@ function emailreport_generate($config)
         "daily"=>$daily,
         "text_lastweek"=>$text_lastweek,
         "text_averagecmp"=>$text_averagecmp,
-        "solarGWh"=>$ukenergy->solarGWh,
-        "solarprc"=>$ukenergy->solarprc,
-        "ukwindGWh"=>$ukenergy->ukwindGWh,
-        "windprc"=>$ukenergy->windprc,
-        "ukhydroGWh"=>$ukenergy->ukhydroGWh,
-        "hydroprc"=>$ukenergy->hydroprc
+        "solarGWh"=>$solarGWh,
+        "solarprc"=>$solarprc,
+        "ukwindGWh"=>$ukwindGWh,
+        "windprc"=>$windprc,
+        "ukhydroGWh"=>$ukhydroGWh,
+        "hydroprc"=>$hydroprc
     ));
     
     $subject = "Emoncms ";
@@ -134,6 +149,21 @@ function emailreport_generate_solarpv($config)
     $use_kwh = (int) $config["use_kwh"];
     $solar_kwh = (int) $config["solar_kwh"];
     $ukenergy = $config["ukenergy"];
+
+    $solarGWh = 0;
+    $solarprc = 0;
+    $ukwindGWh = 0;
+    $windprc = 0;
+    $ukhydroGWh = 0;
+    $hydroprc = 0;
+    if (is_object($ukenergy)) {
+        $solarGWh = $ukenergy->solarGWh ?? 0;
+        $solarprc = $ukenergy->solarprc ?? 0;
+        $ukwindGWh = $ukenergy->ukwindGWh ?? 0;
+        $windprc = $ukenergy->windprc ?? 0;
+        $ukhydroGWh = $ukenergy->ukhydroGWh ?? 0;
+        $hydroprc = $ukenergy->hydroprc ?? 0;
+    }
     
     if (!$timezone) return false;
     if (!$use_kwh) return false;
@@ -244,12 +274,12 @@ function emailreport_generate_solarpv($config)
         "daily"=>$daily,
         "text_lastweek"=>$text_lastweek,
         "text_averagecmp"=>$text_averagecmp,
-        "solarGWh"=>$ukenergy->solarGWh,
-        "solarprc"=>$ukenergy->solarprc,
-        "ukwindGWh"=>$ukenergy->ukwindGWh,
-        "windprc"=>$ukenergy->windprc,
-        "ukhydroGWh"=>$ukenergy->ukhydroGWh,
-        "hydroprc"=>$ukenergy->hydroprc
+        "solarGWh"=>$solarGWh,
+        "solarprc"=>$solarprc,
+        "ukwindGWh"=>$ukwindGWh,
+        "windprc"=>$windprc,
+        "ukhydroGWh"=>$ukhydroGWh,
+        "hydroprc"=>$hydroprc
     ));
     
     $subject = "Emoncms ";
