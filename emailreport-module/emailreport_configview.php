@@ -9,8 +9,9 @@
 
     Select report:<br>
     <select id="selectreport">
-        <option value="home-energy">Home Energy Consumption</option>
-        <option value="solar-pv">Solar PV & Self consumption</option>
+        <?php foreach ($reportlabels as $key => $label) { ?>
+            <option value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></option>
+        <?php } ?>
     </select><br><br>
 
     <div id="emailreport-config"></div>
@@ -34,7 +35,7 @@ var emailreports = <?php echo json_encode($emailreports); ?>;
 var config_options = {};
 var config = {};
 
-var report = "home-energy";
+var report = Object.keys(emailreports)[0];
 draw_configview();
 
 $("#selectreport").change(function(){

@@ -20,15 +20,21 @@ function emailreport_controller()
     $emoncmsorg = true;
 
     if (!$session['write']) return false;
-    
-    include "Modules/emailreport/emailreports.php";
-    include "Modules/emailreport/emailreportgenerator.php";
+
+    include "Modules/emailreport/emailreport_registry.php";
+    include "Modules/emailreport/emailreport_runner.php";
     include "Modules/emailreport/emailreport_model.php";
+
+    $emailreports = EmailReportRegistry::get_config_options();
+    $reportlabels = EmailReportRegistry::get_report_labels();
     $ereport = new EmailReport($mysqli,$emailreports);
     
     if ($route->action=="") {
         $route->format = "html";
-        return view("Modules/emailreport/emailreport_configview.php",array("emailreports"=>$emailreports));
+        return view("Modules/emailreport/emailreport_configview.php",array(
+            "emailreports"=>$emailreports,
+            "reportlabels"=>$reportlabels
+        ));
     }
     
     if ($route->action=="save") {
@@ -49,39 +55,19 @@ function emailreport_controller()
         $result = $ereport->validate_config($report,json_decode(get("config"))); 
         if ($result["valid"]) {
             $config = $result["config"];
-        
-            $emailreport = false;
-            
-            if ($report=="home-energy") {
-                $emailreport = emailreport_generate(array(
-                    "host"=>$path,
-                    "title"=>$config["title"],
-                    "feedid"=>$config["use_kwh"],
-                    "apikey"=>$u->apikey_read,
-                    "timezone"=>$u->timezone,
-                    "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
-                ));
-            }
-            
-            if ($report=="solar-pv") {
-                $emailreport = emailreport_generate_solarpv(array(
-                    "host"=>$path,
-                    "title"=>$config["title"],
-                    "use_kwh"=>$config["use_kwh"],
-                    "solar_kwh"=>$config["solar_kwh"],
-                    "apikey"=>$u->apikey_read,
-                    "timezone"=>$u->timezone,
-                    "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
-                ));
-            }
+
+            $generation_config = EmailReportRunner::build_generation_config($config, array(
+                "host"=>$path,
+                "apikey"=>$u->apikey_read,
+                "timezone"=>$u->timezone,
+                "ukenergy"=>json_decode($redis->get("ukenergy-stats"))
+            ));
+
+            $emailreport = EmailReportRunner::generate_by_type($report, $generation_config);
             
             if ($emailreport!=false) {
                 if ($route->subaction=="sendtest") {
-                    if ($emoncmsorg) {
-                        emailreport_send($redis,$config["email"],$emailreport);
-                    } else {
-                        emailreport_send_swift($config["email"],$emailreport);
-                    }
+                    EmailReportRunner::send_delivery($redis,$config["email"],$emailreport,$emoncmsorg);
                     return "email report sent";
                 } else {
                     return "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".htmlspecialchars($emailreport['subject'], ENT_QUOTES, 'UTF-8')."</div>".$emailreport['message'];

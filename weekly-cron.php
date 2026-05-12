@@ -6,7 +6,9 @@ $path = "https://emoncms.org";
 require "ukenergy.php";
 chdir("/var/www/emoncms");
 require "Lib/load_emoncms.php";
-require "Modules/emailreport/emailreportgenerator.php";
+require "Modules/emailreport/emailreport_registry.php";
+require "Modules/emailreport/emailreport_runner.php";
+require "Modules/emailreport/emailreport_model.php";
 
 // ----------------------------------------------------
 // Load UK Energy statistics for last week
@@ -31,62 +33,36 @@ $redis->set("ukenergy-stats",json_encode($ukenergy));
 
 print "Sending energy update emails\n";
 
+$ereport = new EmailReport($mysqli,EmailReportRegistry::get_config_options());
+
 $result = $mysqli->query("SELECT * FROM emailreport");
 while($row = $result->fetch_object()) {
     $u = $user->get($row->userid);
     
     print " - ".$u->username."\n";
     
-    if ($row->report=="home-energy") {
-        $row->config = json_decode($row->config);
-        if ($row->config->enable==1) {  
-            $emailreport = emailreport_generate(array(
-                "host"=>$path,
-                "title"=>$row->config->title,
-                "feedid"=>$row->config->use_kwh,
-                "apikey"=>$u->apikey_read,
-                "timezone"=>$u->timezone,
-                "ukenergy"=>$ukenergy
-            ));
+    $config = json_decode($row->config);
+    $validation = $ereport->validate_config($row->report, $config);
+    if (!$validation["valid"]) {
+        print "   invalid config for report " . $row->report . ": " . $validation["message"] . "\n";
+        continue;
+    }
 
-            if ($emailreport) {
-                if ($emoncmsorg) {
-                    emailreport_send($redis,$row->config->email,$emailreport);
-                } else {
-                    emailreport_send_swift($row->config->email,$emailreport);
-                }
-            }
-        }
+    $config = $validation["config"];
+    if (!isset($config["enable"]) || (int) $config["enable"] !== 1) {
+        continue;
     }
-    
-    if ($row->report=="solar-pv") {
-        $row->config = json_decode($row->config);
-        if ($row->config->enable==1) {  
-            $emailreport = emailreport_generate_solarpv(array(
-                "host"=>$path,
-                "title"=>$row->config->title,
-                "use_kwh"=>$row->config->use_kwh,
-                "solar_kwh"=>$row->config->solar_kwh,
-                "apikey"=>$u->apikey_read,
-                "timezone"=>$u->timezone,
-                "ukenergy"=>$ukenergy
-            ));
-            if ($emailreport) {
-                if ($emoncmsorg) {
-                    emailreport_send($redis,$row->config->email,$emailreport);
-                } else {
-                    emailreport_send_swift($row->config->email,$emailreport);
-                }
-            }
-        }
+
+    $generation_config = EmailReportRunner::build_generation_config($config, array(
+        "host"=>$path,
+        "apikey"=>$u->apikey_read,
+        "timezone"=>$u->timezone,
+        "ukenergy"=>$ukenergy
+    ));
+
+    $emailreport = EmailReportRunner::generate_by_type($row->report, $generation_config);
+
+    if ($emailreport) {
+        EmailReportRunner::send_delivery($redis,$config["email"],$emailreport,$emoncmsorg);
     }
-}
-  
-function view($filepath, array $args)
-{
-    extract($args);
-    ob_start();
-    include "$filepath";
-    $content = ob_get_clean();
-    return $content;
 }
