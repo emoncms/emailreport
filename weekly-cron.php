@@ -58,6 +58,8 @@ while($row = $result->fetch_object()) {
         "host"=>$path,
         "apikey"=>$u->apikey_read,
         "timezone"=>$u->timezone,
+        "userid"=>$row->userid,
+        "report"=>$row->report,
         "ukenergy"=>$ukenergy
     ));
 

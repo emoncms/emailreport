@@ -9,11 +9,14 @@ function emailreport_generate_solarpv($config)
     $host = $config["host"];
     $title = $config["title"];
     $apikey = $config["apikey"];
+    $userid = $config["userid"] ?? null;
+    $report = $config["report"] ?? null;
     $timezone = $config["timezone"];
     $use_kwh = (int) $config["use_kwh"];
     $solar_kwh = (int) $config["solar_kwh"];
     $ukenergy = $config["ukenergy"] ?? null;
     $show_ukenergy = !empty($config["show_ukenergy"]);
+    $unsubscribe_url = emailreport_build_unsubscribe_url($host, $userid, $report, $apikey);
 
     if (!$timezone || !$use_kwh || !$solar_kwh) {
         return false;
@@ -90,7 +93,8 @@ function emailreport_generate_solarpv($config)
         "ukwindGWh" => $metrics["ukwindGWh"],
         "windprc" => $metrics["windprc"],
         "ukhydroGWh" => $metrics["ukhydroGWh"],
-        "hydroprc" => $metrics["hydroprc"]
+        "hydroprc" => $metrics["hydroprc"],
+        "unsubscribe_url" => $unsubscribe_url
     ));
 
     $subject = "Emoncms ";

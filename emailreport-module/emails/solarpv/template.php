@@ -38,6 +38,7 @@ $main_col_width = $show_ukenergy ? "50%" : "100%";
     <br>
     <p><?php echo $text_lastweek; ?></p>
     <p><?php echo $text_averagecmp; ?></p>
+    <?php echo emailreport_render_unsubscribe_footer($unsubscribe_url ?? ''); ?>
 
   </td>
 

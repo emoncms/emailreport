@@ -10,10 +10,13 @@ function emailreport_generate_home($config)
     $host = $config["host"];
     $title = $config["title"];
     $apikey = $config["apikey"];
+    $userid = $config["userid"] ?? null;
+    $report = $config["report"] ?? null;
     $timezone = $config["timezone"];
     $usefeedid = (int) $config["use_kwh"];
     $ukenergy = $config["ukenergy"] ?? null;
     $show_ukenergy = !empty($config["show_ukenergy"]);
+    $unsubscribe_url = emailreport_build_unsubscribe_url($host, $userid, $report, $apikey);
 
     if (!$timezone || !$usefeedid) {
         return false;
@@ -79,7 +82,8 @@ function emailreport_generate_home($config)
         "ukwindGWh" => $metrics["ukwindGWh"],
         "windprc" => $metrics["windprc"],
         "ukhydroGWh" => $metrics["ukhydroGWh"],
-        "hydroprc" => $metrics["hydroprc"]
+        "hydroprc" => $metrics["hydroprc"],
+        "unsubscribe_url" => $unsubscribe_url
     ));
 
     $subject = "Emoncms ";

@@ -56,3 +56,33 @@ function emailreport_extract_ukenergy_metrics($ukenergy)
 
     return $metrics;
 }
+
+function emailreport_build_unsubscribe_token($userid, $report, $apikey_read)
+{
+    return hash_hmac('sha256', (int) $userid . '|' . $report, (string) $apikey_read);
+}
+
+function emailreport_build_unsubscribe_url($host, $userid, $report, $apikey_read)
+{
+    if (!$host || !$userid || !$report || !$apikey_read) {
+        return '';
+    }
+
+    $base = rtrim($host, '/');
+    $token = emailreport_build_unsubscribe_token($userid, $report, $apikey_read);
+
+    return $base . '/emailreport/unsubscribe?userid=' . (int) $userid . '&report=' . rawurlencode($report) . '&token=' . rawurlencode($token);
+}
+
+function emailreport_render_unsubscribe_footer($unsubscribe_url)
+{
+    if (!$unsubscribe_url) {
+        return '';
+    }
+
+    $safe_url = htmlspecialchars($unsubscribe_url, ENT_QUOTES, 'UTF-8');
+
+    return '<div style="margin-top:20px; padding-top:10px; border-top:1px solid #ddd; font-size:13px; color:#666">'
+        . 'If you no longer want these emails, you can <a href="' . $safe_url . '">unsubscribe</a>.'
+        . '</div>';
+}
