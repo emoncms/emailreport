@@ -17,9 +17,6 @@ function emailreport_controller()
     global $path, $mysqli,$session, $route, $redis, $user, $settings;
     
     $result = false;
-<<<<<<< HEAD
-    $emoncmsorg = false;
-=======
     $emoncmsorg = !isset($settings['domain']) || strtolower($settings['domain']) === "emoncms.org";
 
     include "Modules/emailreport/emailreport_registry.php";
@@ -96,7 +93,6 @@ function emailreport_controller()
     // -----------------------------------------------------------------------------------------------------
     // Authenticated routes for managing email report configurations and previews
     // -----------------------------------------------------------------------------------------------------
->>>>>>> origin/emoncmsorg
 
     if (!$session['write']) return false;
     

@@ -1,13 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-$emoncmsorg = false;
-$path = "http://localhost/emoncms";
-
-define('EMONCMS_EXEC', 1);
-
-=======
->>>>>>> origin/emoncmsorg
 require "ukenergy.php";
 chdir("/var/www/emoncms");
 require "Lib/load_emoncms.php";
