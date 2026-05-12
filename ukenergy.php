@@ -24,7 +24,7 @@ function load_ukenergy_stats($start)
     $ukhydroGWh = ($ukhydro * $totaltime) / 3600000;
 
     // Get average solar output in this time
-    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=477291&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
+    $data = json_decode(file_get_contents("http://emoncms.org/feed/data.json?id=477236&start=$start&end=$end&interval=1800&skipmissing=0&limitinterval=1"));
     $sum = 0; $n = 0;
     for ($i=0; $i<count($data); $i++) {
         if ($data[$i][1]!=null) $sum += $data[$i][1];

@@ -6,7 +6,7 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // Home Energy Consumption
 // --------------------------------------------------------------------------------------------------------------------------------------------
-function emailreport_generate($config) 
+function emailreport_generate($config)
 {
     $host = $config["host"];
     $title = $config["title"];

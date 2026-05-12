@@ -28,17 +28,17 @@ function emailreport_controller()
     
     if ($route->action=="") {
         $route->format = "html";
-        $result = view("Modules/emailreport/emailreport_configview.php",array("emailreports"=>$emailreports));
+        return view("Modules/emailreport/emailreport_configview.php",array("emailreports"=>$emailreports));
     }
     
     if ($route->action=="save") {
         $route->format = "json";
-        $result = $ereport->set($session['userid'],get("report"),json_decode(get("config")));
+        return $ereport->set($session['userid'],get("report"),json_decode(get("config")));
     }
     
     if ($route->action=="config") {
         $route->format = "json";
-        $result = $ereport->get($session['userid'],get("report"));
+        return $ereport->get($session['userid'],get("report"));
     }
 
     if ($route->action=="preview") {
@@ -82,18 +82,18 @@ function emailreport_controller()
                     } else {
                         emailreport_send_swift($config["email"],$emailreport);
                     }
-                    $result = "email report sent";
+                    return "email report sent";
                 } else {
-                    $result = "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".$emailreport['subject']."</div>".$emailreport['message'];
+                    return "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".htmlspecialchars($emailreport['subject'], ENT_QUOTES, 'UTF-8')."</div>".$emailreport['message'];
                 }
             } else {
-                $result = "";
+                return "";
             }
             
         } else {
-            $result = $result["message"];
+            return $result["message"];
         }
     }
     
-    return array('content'=>$result);
+    return false;
 }
