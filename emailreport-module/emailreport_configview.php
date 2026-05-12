@@ -175,7 +175,7 @@ new Vue({
             this.previewTimer = setTimeout(function () {
                 self.preview();
                 self.previewTimer = null;
-            }, 350);
+            }, 100);
         },
         loadFeeds: function () {
             var self = this;
