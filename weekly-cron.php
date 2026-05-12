@@ -1,11 +1,11 @@
 <?php
 
-$emoncmsorg = true;
-$path = "https://emoncms.org";
-
 require "ukenergy.php";
 chdir("/var/www/emoncms");
 require "Lib/load_emoncms.php";
+
+$emoncmsorg = !isset($settings['domain']) || strtolower($settings['domain']) === "emoncms.org";
+
 require "Modules/emailreport/emailreport_registry.php";
 require "Modules/emailreport/emailreport_runner.php";
 require "Modules/emailreport/emailreport_model.php";

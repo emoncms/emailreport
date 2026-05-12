@@ -1,4 +1,7 @@
-<?php global $path, $session; ?>
+<?php 
+// no direct access
+defined('EMONCMS_EXEC') or die('Restricted access');
+?>
 
 <br>
 <div style="background-color:#fff; padding:20px">
@@ -26,7 +29,6 @@
 <script>
 
 $("body").css('background-color','#eee');
-var path = "<?php echo $path; ?>";
 var emailreports = <?php echo json_encode($emailreports); ?>;
 
 // -----------------------------------------------------------------------------------------------------------------

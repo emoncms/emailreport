@@ -1,3 +1,8 @@
+<?php
+// no direct access
+defined('EMONCMS_EXEC') or die('Restricted access');
+?>
+
 <div id="emailouter" style="background-color:#eee; padding:20px; font-size:18px">
 <div style="background-color:#fff; padding:20px;">
 <table style="width:100%">

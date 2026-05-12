@@ -14,10 +14,10 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 
 function emailreport_controller()
 {
-    global $path,$mysqli,$session, $route, $redis, $user;
+    global $path, $mysqli,$session, $route, $redis, $user, $settings;
     
     $result = false;
-    $emoncmsorg = true;
+    $emoncmsorg = !isset($settings['domain']) || strtolower($settings['domain']) === "emoncms.org";
 
     if (!$session['write']) return false;
 

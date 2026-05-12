@@ -1,4 +1,7 @@
 <?php
+// no direct access
+defined('EMONCMS_EXEC') or die('Restricted access');
+
 if ($total !== null) {
     $total = number_format($total, 1);
 } else {
