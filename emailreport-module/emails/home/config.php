@@ -25,7 +25,7 @@ return array(
         "show_ukenergy" => array(
             "description" => "Show UK energy statistics",
             "type" => "checkbox",
-            "optional" => true
+            "optional" => true,
             "default" => 0
         )
     )
