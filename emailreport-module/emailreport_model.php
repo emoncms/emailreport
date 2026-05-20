@@ -102,6 +102,10 @@ class EmailReport
         // Validate only configured keys and normalize values for storage.
         foreach ($config_options as $key => $option) {
             if (!property_exists($config_in, $key)) {
+                if (!empty($option["optional"])) {
+                    $config[$key] = $option["default"] ?? null;
+                    continue;
+                }
                 return $this->validation_error("Error: missing $key");
             }
 
