@@ -4,6 +4,11 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 global $path;
 ?>
 <script src="<?php echo $path; ?>Lib/vue.min.js"></script>
+<style>
+    .content-container {
+        max-width: 1150px;
+    }
+</style>
 <br>
 <div id="emailreport-app">
 
