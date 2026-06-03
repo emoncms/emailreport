@@ -4,7 +4,11 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 global $path;
 load_js("Lib/js/vue.global.prod-3.5.22.min.js");
 ?>
-
+<style>
+    .content-container {
+        max-width: 1150px;
+    }
+</style>
 <br>
 <div id="emailreport-app">
 

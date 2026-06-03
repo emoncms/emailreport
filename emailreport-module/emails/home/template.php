@@ -15,18 +15,15 @@ if ($kwhday !== null) {
 }
 
 $show_ukenergy = !empty($show_ukenergy);
-
-$main_col_width = $show_ukenergy ? "50%" : "100%";
 ?>
 
 <div id="emailouter" style="background-color:#eee; padding:20px; font-size:18px">
 <div style="background-color:#fff; padding:20px;">
-<table style="width:100%">
-<tr>
-  <td style="width:<?php echo $main_col_width; ?>; vertical-align:top; padding:10px">
+<div style="display:flex; flex-wrap:wrap; width:100%">
+  <div style="flex:1 1 400px; vertical-align:top; padding:10px; box-sizing:border-box">
     <h3>Your energy in the last week</h3>
     <div style="font-size:28px; line-height:35px;">Total: <?php echo $total; ?> kWh</div>
-    <div style="font-size:28px; line-height:35px;"><?php echo $kwhday; ?> kWh per day</div>
+    <div style="font-size:22px; line-height:35px; margin-bottom:20px;"><?php echo $kwhday; ?> kWh per day</div>
 
     <p><b>Daily breakdown:</b></p>
     <table style="width:100%; border-collapse: collapse">
@@ -41,12 +38,11 @@ $main_col_width = $show_ukenergy ? "50%" : "100%";
     <br>
     <p><?php echo $text_lastweek; ?></p>
     <p><?php echo $text_averagecmp; ?></p>
-    <?php echo emailreport_render_unsubscribe_footer($unsubscribe_url ?? ''); ?>
 
-  </td>
+  </div>
 
   <?php if ($show_ukenergy) { ?>
-  <td style="width:50%; vertical-align:top;padding:10px">
+  <div style="flex:1 1 400px; vertical-align:top; padding:10px; box-sizing:border-box">
     <h3>Renewable Energy in the UK last week</h3>
 
     <h3>UK Solar</h3>
@@ -57,9 +53,11 @@ $main_col_width = $show_ukenergy ? "50%" : "100%";
 
     <h3>UK Hydro</h3>
     <p>Last week metered hydro generated <?php echo round($ukhydroGWh); ?> GWh of energy across the UK covering <?php echo round($hydroprc); ?>% of total demand.</p>
-  </td>
+  </div>
   <?php } ?>
-</tr>
-</table>
+</div>
+<div style="padding:10px">
+  <?php echo emailreport_render_unsubscribe_footer($unsubscribe_url ?? ''); ?>
+</div>
 </div>
 </div>
