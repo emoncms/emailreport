@@ -2,8 +2,9 @@
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 global $path;
+load_js("Lib/js/vue.global.prod-3.5.22.min.js");
 ?>
-<script src="<?php echo $path; ?>Lib/vue.min.js"></script>
+
 <br>
 <div id="emailreport-app">
 
@@ -55,19 +56,20 @@ global $path;
 
 document.body.style.backgroundColor = "#eee";
 
-new Vue({
-    el: "#emailreport-app",
-    data: {
-        emailreports: <?php echo json_encode($emailreports); ?>,
-        report: "",
-        config: {},
-        feedList: [],
-        feedsByName: {},
-        message: "",
-        previewHtml: "",
-        previewTimer: null,
-        suspendAutoPreview: false,
-        lastPreviewComparable: ""
+Vue.createApp({
+    data() {
+        return {
+            emailreports: <?php echo json_encode($emailreports); ?>,
+            report: "",
+            config: {},
+            feedList: [],
+            feedsByName: {},
+            message: "",
+            previewHtml: "",
+            previewTimer: null,
+            suspendAutoPreview: false,
+            lastPreviewComparable: ""
+        };
     },
     computed: {
         configOptions: function () {
@@ -234,12 +236,12 @@ new Vue({
             var self = this;
             return this.fetchJSON(path + "user/get.json").then(function (result) {
                 if (self.configOptions.email && result && result.email !== undefined) {
-                    self.$set(self.config, "email", result.email);
+                    self.config.email = result.email;
                 }
             });
         }
     }
-});
+}).mount("#emailreport-app");
 
 </script>
 
