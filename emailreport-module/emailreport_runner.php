@@ -50,34 +50,35 @@ class EmailReportRunner
         return call_user_func($generator, $config);
     }
 
-    public static function send_delivery($redis, $emailto, $emailreport, $emoncmsorg = true)
+    /**
+     * Deliver one generated report.
+     *
+     * There used to be two paths here, a redis queue for emoncms.org and a
+     * direct send everywhere else, because the two installs delivered email in
+     * different ways. Which transport is used is now settings['email']
+     * ['transport'], so this module no longer needs to know which install it
+     * is running on.
+     *
+     * Returns the transport's result so a caller sending in bulk can pace
+     * itself and report what happened, rather than sending into silence.
+     *
+     * @param string $emailsto  one address, or several separated by commas
+     * @param array  $emailreport  generated report, subject and message
+     * @return array array('success'=>bool, 'message'=>string, 'status'=>int|null)
+     */
+    public static function send_delivery($emailsto, $emailreport)
     {
-        if ($emoncmsorg) {
-            self::send_queue($redis, $emailto, $emailreport);
-        } else {
-            self::send_swift($emailto, $emailreport);
+        require_once "Lib/email.php";
+
+        $recipients = array_filter(array_map('trim', explode(",", (string) $emailsto)));
+        if (empty($recipients)) {
+            return array('success'=>false, 'message'=>"No recipient");
         }
-    }
-
-    public static function send_queue($redis, $emailto, $emailreport)
-    {
-        $redis->rpush("emailqueue", json_encode(array(
-            "emailto" => $emailto,
-            "type" => "weeklyenergyupdate",
-            "subject" => $emailreport['subject'],
-            "message" => $emailreport['message']
-        )));
-    }
-
-    public static function send_swift($emailsto, $emailreport)
-    {
-        require "Lib/email.php";
 
         $email = new Email();
-        $emailsto = explode(",", $emailsto);
-        $email->to($emailsto);
+        $email->to($recipients);
         $email->subject($emailreport['subject']);
         $email->body($emailreport['message']);
-        $email->send();
+        return $email->send();
     }
 }

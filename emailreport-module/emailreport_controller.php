@@ -139,7 +139,13 @@ function emailreport_controller()
             
             if ($emailreport!=false) {
                 if ($route->subaction=="sendtest") {
-                    EmailReportRunner::send_delivery($redis,$config["email"],$emailreport,$emoncmsorg);
+                    // Report what actually happened. This used to say "sent"
+                    // whatever the outcome, which was true enough when the send
+                    // was a queue push and told you nothing, and is not now.
+                    $sent = EmailReportRunner::send_delivery($config["email"],$emailreport);
+                    if (!$sent['success']) {
+                        return "email report could not be sent: ".htmlspecialchars($sent['message'], ENT_QUOTES, 'UTF-8');
+                    }
                     return "email report sent";
                 } else {
                     return "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".htmlspecialchars($emailreport['subject'], ENT_QUOTES, 'UTF-8')."</div>".$emailreport['message'];

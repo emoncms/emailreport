@@ -75,6 +75,40 @@ while($row = $result->fetch_object()) {
     $emailreport = EmailReportRunner::generate_by_type($row->report, $generation_config);
 
     if ($emailreport) {
-        EmailReportRunner::send_delivery($redis,$config["email"],$emailreport,$emoncmsorg);
+        send_report_paced($config["email"], $emailreport);
     }
+}
+
+/**
+ * Send one report, pacing the run and waiting out a rate limit.
+ *
+ * This is the only place in emoncms that sends email in bulk, so this is where
+ * the pacing belongs. It used to be a side effect of the email queue worker
+ * sleeping between messages; with the queue gone the job that actually sends in
+ * a loop has to pace itself, and it is the right place for it because nothing
+ * here is waiting on a response, so the run can take as long as it needs.
+ *
+ * A 429 is the one failure worth waiting out: it says the message was fine and
+ * we simply asked too fast. Everything else is reported and skipped, and the
+ * report goes out next week.
+ */
+function send_report_paced($emailto, $emailreport)
+{
+    // ~5 messages a second, comfortably inside any provider's limit
+    $pacing = 200000;
+
+    $result = EmailReportRunner::send_delivery($emailto, $emailreport);
+
+    if (!$result['success'] && isset($result['status']) && $result['status'] == 429) {
+        print "   rate limited, waiting 60s\n";
+        sleep(60);
+        $result = EmailReportRunner::send_delivery($emailto, $emailreport);
+    }
+
+    if (!$result['success']) {
+        print "   send failed: ".$result['message']."\n";
+    }
+
+    usleep($pacing);
+    return $result;
 }
