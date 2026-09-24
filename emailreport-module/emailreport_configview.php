@@ -47,9 +47,9 @@ load_js("Lib/js/vue.global.prod-3.5.22.min.js");
     </div>
     
     <button class="btn btn-primary" @click="save">Save</button>
-    <button class="btn" @click="sendtest">Send test email</button>
+    <button class="btn btn-default" @click="sendtest">Send test email</button>
     <br><br>
-    <div v-if="message" class="alert">{{ message }}</div>
+    <div v-if="message" class="alert alert-warning">{{ message }}</div>
 </div>
 <br>
 <div id="preview" v-html="previewHtml"></div>
