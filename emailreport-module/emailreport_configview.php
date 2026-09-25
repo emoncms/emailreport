@@ -19,7 +19,7 @@ load_js("Lib/js/vue.global.prod-3.5.22.min.js");
     <div style="border-bottom:1px solid #ccc"></div><br>
 
     Select report:<br>
-    <select v-model="report" @change="onReportChange">
+    <select class="form-select input-220 mb-2" v-model="report" @change="onReportChange">
         <?php foreach ($reportlabels as $key => $label) { ?>
             <option value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></option>
         <?php } ?>
@@ -34,12 +34,12 @@ load_js("Lib/js/vue.global.prod-3.5.22.min.js");
 
             <template v-else-if="option.type==='text' || option.type==='email'">
                 <span>{{ option.description }}</span><br>
-                <input type="text" :id="key" style="width:350px" v-model="config[key]" />
+                <input type="text" :id="key" class="form-control mb-2" style="width:364px; max-width:100%" v-model="config[key]" />
             </template>
 
             <template v-else-if="option.type==='feedselect'">
                 <span>{{ option.description }} (autoname: {{ option.autoname }})</span><br>
-                <select :id="key" v-model="config[key]">
+                <select :id="key" class="form-select input-220 mb-2" v-model="config[key]">
                     <option v-for="feed in feedList" :key="feed.id" :value="String(feed.id)">{{ feed.name }}</option>
                 </select>
             </template>
