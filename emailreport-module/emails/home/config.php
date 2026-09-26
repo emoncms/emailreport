@@ -18,7 +18,7 @@ return array(
             "type" => "email"
         ),
         "use_kwh" => array(
-            "description" => "Select cumulative kwh consumptiion feed:",
+            "description" => "Select cumulative kwh consumption feed:",
             "type" => "feedselect",
             "autoname" => "use_kwh"
         ),

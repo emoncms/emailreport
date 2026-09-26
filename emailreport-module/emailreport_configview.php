@@ -3,64 +3,67 @@
 defined('EMONCMS_EXEC') or die('Restricted access');
 global $path;
 load_js("Lib/js/vue.global.prod-3.5.22.min.js");
+load_css("Modules/emailreport/emailreport_view.css");
 ?>
-<style>
-    .content-container {
-        max-width: 1150px;
-    }
-</style>
-<br>
-<div id="emailreport-app">
 
-<div style="background-color:#fff; padding:20px">
+<div class="page-header">
+    <h3>Energy Email Reports</h3>
+</div>
 
-    <div class="page-header">
-        <h3>Energy Email Reports</h3>
-    </div>
-    <p>Receive a weekly email report of home electricity consumption</p>
-    <div style="border-bottom:1px solid #ccc"></div><br>
+<div id="emailreport-app" class="emailreport-page" v-cloak>
+    <p class="page-lead">Receive a weekly email report of home electricity consumption.</p>
 
-    Select report:<br>
-    <select class="form-select input-220 mb-2" v-model="report" @change="onReportChange">
-        <?php foreach ($reportlabels as $key => $label) { ?>
-            <option value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></option>
+    <ul class="nav nav-tabs er-tabs">
+        <?php foreach ($reportlabels as $key => $label) { $k = htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>
+        <li class="nav-item"><a class="nav-link" :class="{active: report == '<?php echo $k; ?>'}" href="#" @click.prevent="setReport('<?php echo $k; ?>')"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a></li>
         <?php } ?>
-    </select><br><br>
+    </ul>
 
-    <div id="emailreport-config">
-        <div v-for="(option, key) in configOptions" :key="key" style="margin-bottom:12px">
-            <template v-if="option.type==='checkbox'">
-                <input type="checkbox" :id="key" style="margin-top:-3px" v-model="config[key]" true-value="1" false-value="0" />
-                <div style="display:inline-block; margin-left:5px">{{ option.description }}</div>
-            </template>
+    <div class="panel">
+        <div class="panel-header panel-header-static">
+            <span class="panel-accent"></span>
+            <span class="panel-name">Settings</span>
+            <span class="panel-badge">{{ config.enable == 1 ? 'Enabled' : 'Off' }}</span>
+        </div>
+        <div class="panel-body er-form">
+            <div v-for="(option, key) in configOptions" :key="key" class="er-field">
+                <div v-if="option.type==='checkbox'" class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" :id="'er-' + key" v-model="config[key]" true-value="1" false-value="0" />
+                    <label class="form-check-label" :for="'er-' + key">{{ option.description }}</label>
+                </div>
 
-            <template v-else-if="option.type==='text' || option.type==='email'">
-                <span>{{ option.description }}</span><br>
-                <input type="text" :id="key" class="form-control mb-2" style="width:364px; max-width:100%" v-model="config[key]" />
-            </template>
+                <template v-else-if="option.type==='text' || option.type==='email'">
+                    <label class="form-label" :for="'er-' + key">{{ label(option.description) }}</label>
+                    <input :type="option.type" :id="'er-' + key" class="form-control input-285" v-model="config[key]" />
+                </template>
 
-            <template v-else-if="option.type==='feedselect'">
-                <span>{{ option.description }} (autoname: {{ option.autoname }})</span><br>
-                <select :id="key" class="form-select input-220 mb-2" v-model="config[key]">
-                    <option v-for="feed in feedList" :key="feed.id" :value="String(feed.id)">{{ feed.name }}</option>
-                </select>
-            </template>
+                <template v-else-if="option.type==='feedselect'">
+                    <label class="form-label" :for="'er-' + key">{{ label(option.description) }}</label>
+                    <select :id="'er-' + key" class="form-select input-285" v-model="config[key]">
+                        <option v-for="feed in feedList" :key="feed.id" :value="String(feed.id)">{{ feed.name }}</option>
+                    </select>
+                    <div class="form-text">Selects a feed named {{ option.autoname }} when not set.</div>
+                </template>
+            </div>
+
+            <div class="er-buttons">
+                <button class="btn btn-primary" @click="save">Save</button>
+                <button class="btn btn-default" @click="sendtest">Send test email</button>
+            </div>
+            <div v-if="message" class="alert er-message" :class="messageOk ? 'alert-success' : 'alert-warning'">{{ message }}</div>
         </div>
     </div>
-    
-    <button class="btn btn-primary" @click="save">Save</button>
-    <button class="btn btn-default" @click="sendtest">Send test email</button>
-    <br><br>
-    <div v-if="message" class="alert alert-warning">{{ message }}</div>
-</div>
-<br>
-<div id="preview" v-html="previewHtml"></div>
 
+    <div class="panel" v-show="previewHtml">
+        <div class="panel-header panel-header-static">
+            <span class="panel-accent"></span>
+            <span class="panel-name">Email preview</span>
+        </div>
+        <div class="er-preview" v-html="previewHtml"></div>
+    </div>
 </div>
 
 <script>
-
-document.body.style.backgroundColor = "#eee";
 
 Vue.createApp({
     data() {
@@ -71,6 +74,7 @@ Vue.createApp({
             feedList: [],
             feedsByName: {},
             message: "",
+            messageOk: false,
             previewHtml: "",
             previewTimer: null,
             suspendAutoPreview: false,
@@ -103,8 +107,14 @@ Vue.createApp({
         }
     },
     methods: {
-        onReportChange: function () {
+        setReport: function (report) {
+            if (report === this.report) return;
+            this.report = report;
+            this.previewHtml = "";
             this.loadConfigView();
+        },
+        label: function (description) {
+            return description.replace(/:\s*$/, "");
         },
         buildDefaultConfig: function () {
             var defaults = {};
@@ -213,7 +223,8 @@ Vue.createApp({
                     parsed = raw;
                 }
 
-                if (parsed && parsed.success !== undefined && parsed.success) {
+                self.messageOk = !!(parsed && parsed.success);
+                if (self.messageOk) {
                     self.message = "Config saved";
                 } else {
                     self.message = typeof parsed === "string" ? parsed : JSON.stringify(parsed);
@@ -234,7 +245,10 @@ Vue.createApp({
         sendtest: function () {
             var self = this;
             var url = path + "emailreport/preview/sendtest";
+            this.message = "Sending...";
+            this.messageOk = false;
             this.postText(url, { report: this.report, config: JSON.stringify(this.config) }).then(function (result) {
+                self.messageOk = result === "email report sent";
                 self.message = result;
             });
         },

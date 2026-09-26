@@ -35,7 +35,7 @@ function emailreport_controller()
     // -----------------------------------------------------------------------------------------------------
 
     $render_unsubscribe_alert = function ($message, $type) {
-        $type = $type === 'success' ? 'success' : 'error';
+        $type = $type === 'success' ? 'success' : 'danger';
         return '<div style="max-width:640px; margin:20px auto; padding:0 15px">'
             . '<div class="alert alert-' . $type . '" style="margin-bottom:0">'
             . htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
@@ -148,7 +148,7 @@ function emailreport_controller()
                     }
                     return "email report sent";
                 } else {
-                    return "<div style='background-color:#fafafa; padding:10px; border-bottom:1px solid #ddd'><b>EMAIL PREVIEW:</b> ".htmlspecialchars($emailreport['subject'], ENT_QUOTES, 'UTF-8')."</div>".$emailreport['message'];
+                    return "<div class='panel-row'><div class='row-key'>Subject</div><div class='row-value'>".htmlspecialchars($emailreport['subject'], ENT_QUOTES, 'UTF-8')."</div></div><div class='er-email' data-bs-theme='light'>".$emailreport['message']."</div>";
                 }
             } else {
                 return "";
