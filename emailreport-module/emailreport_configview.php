@@ -14,7 +14,9 @@ load_js("Lib/js/vue.global.prod-3.5.22.min.js");
 
 <div style="background-color:#fff; padding:20px">
 
-    <h2>Energy Email Reports</h2>
+    <div class="page-header">
+        <h3>Energy Email Reports</h3>
+    </div>
     <p>Receive a weekly email report of home electricity consumption</p>
     <div style="border-bottom:1px solid #ccc"></div><br>
 
