@@ -10,7 +10,7 @@ load_css("Modules/emailreport/emailreport_view.css");
     <h3>Energy Email Reports</h3>
 </div>
 
-<div id="emailreport-app" class="emailreport-page" v-cloak>
+<div id="emailreport-app" class="panel-page emailreport-page" v-cloak>
     <p class="page-lead">Receive a weekly email report of home electricity consumption.</p>
 
     <ul class="nav nav-tabs er-tabs">
@@ -25,8 +25,8 @@ load_css("Modules/emailreport/emailreport_view.css");
             <span class="panel-name">Settings</span>
             <span class="panel-badge">{{ config.enable == 1 ? 'Enabled' : 'Off' }}</span>
         </div>
-        <div class="panel-body er-form">
-            <div v-for="(option, key) in configOptions" :key="key" class="er-field">
+        <div class="panel-body panel-form">
+            <div v-for="(option, key) in configOptions" :key="key" class="panel-field">
                 <div v-if="option.type==='checkbox'" class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" :id="'er-' + key" v-model="config[key]" true-value="1" false-value="0" />
                     <label class="form-check-label" :for="'er-' + key">{{ option.description }}</label>
@@ -46,7 +46,7 @@ load_css("Modules/emailreport/emailreport_view.css");
                 </template>
             </div>
 
-            <div class="er-buttons">
+            <div class="panel-buttons">
                 <button class="btn btn-primary" @click="save">Save</button>
                 <button class="btn btn-default" @click="sendtest">Send test email</button>
             </div>

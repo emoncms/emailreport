@@ -1,19 +1,6 @@
-/* Email reports: panels on the page background, as post process */
-body { background-color: var(--bg-body); }
-.content-container { max-width: 1150px; }
-[v-cloak] { display: none; }
-
-.emailreport-page { padding-bottom: 2rem; }
-.emailreport-page .panel { margin-bottom: 1rem; }
-.page-lead { margin: -4px 0 14px; color: var(--text-secondary); }
+/* Email reports: panel-page from the theme */
 .er-tabs { margin-bottom: 1rem; }
 
-/* Settings form */
-.er-form { padding: 1rem; }
-.er-field { margin-bottom: 14px; }
-.er-form .form-label { font-weight: 600; font-size: var(--font-sm); }
-.er-buttons { display: flex; gap: 6px; }
-.er-buttons .btn { margin: 0; }
 .er-message { margin: 14px 0 0; }
 
 /* Preview: subject row, then the email on its own light background */
